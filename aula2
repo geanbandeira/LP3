@@ -16,4 +16,9 @@ dead lock impasse dois processos esperando um ao outro
 linha de execução = threads
 algoritmo controle de concorrencia
 fila mecanismo de bloqueio
+noa executa explicitamente o matodo
+se eu executar o run é sequencial, nao é mais trheads, se executar com start tu nao sabe a ordem, isso é threads
+junção dos arquivos reduce
+problema de concorrencia em baixar os arquivos por exemplo no torrent,
 
+euristica conseguir solução local otima, buscar soluções 
