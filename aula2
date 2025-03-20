@@ -1,0 +1,19 @@
+Programação sincrona: nao precisa estar lá x programação assincrona: tá na aula    livro the litle book of semhafares https://greenteapress.com/semaphores/LittleBookOfSemaphores.pdf
+concorrencia um monte de processos threads leve,
+cpu processador, gpu placa de video, tpu ia tensores base da ia
+Associados a sincronização em concorrencia,
+exclusao mutua semafaro ex,
+ms doos mono tarefa
+modulo nao precisa reiniciar o pc nao meche no kernel, estrutura modular
+região critica, todo codigo tem, recurso compartilhado, todo mundo quer acessar aquela regiao
+problemas de sincronização, região critica estar sincronizada, exclusao mutua
+java tem bibli te sincronização, para concorrente
+semafaro variavel binaria
+concerrencia problemas de entrada e saida
+Assincrona nao bloquear os arquivos
+conceito de trasação no linux tu apaga, apaga uma copia, no windows ele bloqueia
+dead lock impasse dois processos esperando um ao outro
+linha de execução = threads
+algoritmo controle de concorrencia
+fila mecanismo de bloqueio
+
