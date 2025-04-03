@@ -1,0 +1,19 @@
+aula3:  LP3
+
+decomposição de fatores ao contrario da primalidade
+um bit para sinalizar  2^ 15
+distribuir igualmente a tarefa não é trivial
+join espera cada um terminar
+fork criar linhas de execução
+join  é onde volta a ser sequencial, serial
+tarefa facil de paralelizar tela pixel
+tarefa dificil de paralelizar amostrar do DNA, cria varios clone, varias amostras e sequenciar
+Ex espera ativa:
+espera ocupada, ex impressora
+exmpressao lambida
+espera ocupada espera ativa
+thread mesmo espaço de memoria
+codigo produtor consumidor, buffer limitado
+join ou sincron
+
+
