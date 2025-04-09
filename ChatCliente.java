@@ -1,44 +1,51 @@
-//https://www.perplexity.ai/search/um-projeto-em-java-completo-on-ui84u2VYTky66WEZ76Armg
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
 public class ChatClient {
-    private static final String SERVER_IP = "127.0.0.1";
-    private static final int PORT = 12345;
+    private static final String SERVER_IP = "localhost";
+    private static final int SERVER_PORT = 12345;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         
         System.out.print("Digite seu nome: ");
-        String nome = scanner.nextLine();
-
-        try (Socket socket = new Socket(SERVER_IP, PORT);
-             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+        String userName = scanner.nextLine();
+        
+        try (Socket socket = new Socket(SERVER_IP, SERVER_PORT)) {
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             
-            output.writeUTF(nome);
-            
-            // Thread para receber mensagens
+            // Thread para receber mensagens do servidor
             new Thread(() -> {
                 try {
-                    while (true) {
-                        String serverMessage = input.readUTF();
+                    String serverMessage;
+                    while ((serverMessage = in.readLine()) != null) {
                         System.out.println(serverMessage);
                     }
                 } catch (IOException e) {
-                    System.out.println("Conexão com servidor perdida");
+                    System.out.println("Conexão com o servidor perdida.");
                 }
             }).start();
-
-            // Envio de mensagens
+            
+            System.out.println("Conectado ao servidor. Digite suas mensagens:");
+            
+            // Enviar mensagens para o servidor
             while (true) {
-                String message = scanner.nextLine();
-                output.writeUTF(message);
-                output.flush();
+                String userInput = scanner.nextLine();
+                if (userInput.equalsIgnoreCase("/sair")) {
+                    break;
+                }
+                out.println(userName + ": " + userInput);
             }
+            
+        } catch (UnknownHostException e) {
+            System.err.println("Host desconhecido: " + SERVER_IP);
         } catch (IOException e) {
-            System.out.println("Erro ao conectar ao servidor: " + e.getMessage());
+            System.err.println("Não foi possível conectar ao servidor: " + e.getMessage());
+        } finally {
+            scanner.close();
+            System.out.println("Cliente encerrado.");
         }
     }
 }
