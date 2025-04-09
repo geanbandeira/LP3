@@ -1,79 +1,77 @@
 import java.io.*;
 import java.net.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ChatServer {
     private static final int PORT = 12345;
-    private static List<ClientHandler> clients = new ArrayList<>();
+    private static Set<PrintWriter> clientWriters = new HashSet<>();
 
     public static void main(String[] args) {
-        System.out.println("Servidor iniciado na porta " + PORT);
+        System.out.println("Servidor de chat iniciado na porta " + PORT);
         
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Novo cliente conectado: " + clientSocket);
-                
-                ClientHandler clientThread = new ClientHandler(clientSocket);
-                clients.add(clientThread);
-                clientThread.start();
+                new ClientHandler(serverSocket.accept()).start();
+                if (clientWriters.size() >= 2) {
+                    System.out.println("Dois clientes conectados. Não aceitando mais conexões.");
+                    break;
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Erro no servidor: " + e.getMessage());
         }
     }
 
-    static class ClientHandler extends Thread {
+    private static class ClientHandler extends Thread {
         private Socket socket;
-        private DataInputStream input;
-        private DataOutputStream output;
-        private String clientName;
+        private PrintWriter out;
+        private BufferedReader in;
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
-            try {
-                this.input = new DataInputStream(socket.getInputStream());
-                this.output = new DataOutputStream(socket.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         public void run() {
             try {
-                // Recebe nome do cliente
-                this.clientName = input.readUTF();
-                broadcast("Sistema: " + clientName + " entrou no chat!");
-
-                while (true) {
-                    String message = input.readUTF();
-                    String formattedMsg = formatMessage(message);
-                    broadcast(formattedMsg);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new PrintWriter(socket.getOutputStream(), true);
+                
+                synchronized (clientWriters) {
+                    clientWriters.add(out);
                 }
-            } catch (EOFException e) {
-                System.out.println(clientName + " desconectou");
+
+                System.out.println("Novo cliente conectado: " + socket.getRemoteSocketAddress());
+                
+                if (clientWriters.size() == 2) {
+                    broadcast("SERVIDOR: Ambos os clientes estão conectados. Podem começar a conversar!");
+                }
+
+                String message;
+                while ((message = in.readLine()) != null) {
+                    System.out.println("Mensagem recebida: " + message);
+                    broadcast(message);
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Erro no handler do cliente: " + e.getMessage());
             } finally {
-                clients.remove(this);
-                broadcast("Sistema: " + clientName + " saiu do chat");
-                try { socket.close(); } catch (IOException e) {}
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    // Ignorar
+                }
+                synchronized (clientWriters) {
+                    clientWriters.remove(out);
+                }
+                System.out.println("Cliente desconectado");
             }
         }
 
-        private String formatMessage(String msg) {
-            String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
-            return "[" + time + "] " + clientName + ": " + msg;
-        }
-
         private void broadcast(String message) {
-            for (ClientHandler client : clients) {
-                try {
-                    client.output.writeUTF(message);
-                    client.output.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            synchronized (clientWriters) {
+                for (PrintWriter writer : clientWriters) {
+                    if (writer != out) { // Não enviar de volta para o remetente
+                        writer.println(message);
+                    }
                 }
             }
         }
