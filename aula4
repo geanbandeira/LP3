@@ -1,0 +1,12 @@
+javac ChatClient.java
+javac ChatServer.java
+java ChatServer
+java ChatClient
+java ChatClient
+
+https://dontpad.com/spolp3n/socket
+padrao porta http 80
+soap tunel http
+servlet > socket
+jsp encapsulado de forma correta
+
